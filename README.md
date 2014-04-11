@@ -23,4 +23,10 @@ Get started (fetch all dependencies)
 `make test`
 
 
+License
+-------
+
+Schemese is licensed under the MIT License (http://www.opensource.org/licenses/MIT).
+
+
 
