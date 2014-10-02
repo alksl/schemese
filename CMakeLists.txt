@@ -29,3 +29,11 @@ add_executable(scanner_test
 
 target_link_libraries(scanner_test ${CORELIBS} gtest gtest_main)
 add_test(scanner_test ${CMAKE_BINARY_DIR}/scanner_test)
+
+add_executable(parser_test
+  lib/token.cc
+  lib/parser.cc
+  test/parser_test.cc)
+
+target_link_libraries(parser_test ${CORELIBS} gtest gtest_main)
+add_test(parser_test ${CMAKE_BINARY_DIR}/scanner_test)
