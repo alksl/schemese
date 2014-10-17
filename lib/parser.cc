@@ -14,15 +14,10 @@ Token TokenStream::read() {
 
 Parser::Parser(TokenStream stream) {
   token_stream = stream;
-  root = new Ast();
 }
 
-Ast* Parser::parse() {
-  Ast* lhs = new Ast();
-  lhs->token = new Token(token_stream.read());
-  Ast* rhs = new Ast();
-  rhs->token = new Token(token_stream.read());
-  root->children.push_back(lhs);
-  root->children.push_back(rhs);
-  return root;
+SExpression* Parser::parse() {
+ return new SExpression(
+      new Integer(Token(INTEGER, "42")),
+      new SExpression());
 }

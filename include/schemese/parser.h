@@ -5,10 +5,30 @@
 
 
 namespace Schemese {
-  class Ast {
+  class Expression {
     public:
-      std::vector<Ast*> children;
-      Token* token;
+      virtual ~Expression() { }
+  };
+
+  class Scalar : public Expression {
+    public:
+      Scalar(Token t) : token(t) { }
+      const Token token;
+  };
+
+  class SExpression : public Expression {
+    public:
+      SExpression(Expression* e1, Expression* e2) : car(e1), cdr(e2) { }
+      SExpression() : car(NULL), cdr(NULL) { }
+      bool empty() { return car == NULL; }
+
+      const Expression* car;
+      const Expression* cdr;
+  };
+
+  class Integer : public Scalar {
+    public:
+      Integer(Token integer_token) : Scalar(integer_token) { }
   };
 
   class TokenStream {
@@ -22,10 +42,10 @@ namespace Schemese {
   class Parser {
     public:
       Parser(TokenStream stream);
-      Ast* parse();
+      SExpression* parse();
     private:
       TokenStream token_stream;
-      Ast* root = NULL;
+      SExpression* tree = NULL;
   };
 }
 
