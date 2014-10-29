@@ -23,9 +23,9 @@ class ParserTest : public ::testing::Test {
 
 TEST_F(ParserTest, parse_empty_list) {
   TokenStream token_stream;
-  token_stream.push(Token(LPAREN, "("));
-  token_stream.push(Token(INTEGER, "42"));
-  token_stream.push(Token(RPAREN, ")"));
+  token_stream << Token(LPAREN, "(");
+  token_stream << Token(INTEGER, "42");
+  token_stream << Token(RPAREN, ")");
   SExpression* tree = parse(token_stream);
   Scalar* car = (Scalar*)tree->car;
   SExpression* cdr = (SExpression*)tree->cdr;

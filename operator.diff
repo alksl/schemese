@@ -1,0 +1,58 @@
+diff --git a/include/schemese/parser.h b/include/schemese/parser.h
+index b9d2246..74664d5 100644
+--- a/include/schemese/parser.h
++++ b/include/schemese/parser.h
+@@ -33,12 +33,14 @@ namespace Schemese {
+ 
+   class TokenStream {
+     public:
+-      void push(Token token);
++      void push(const Token& token);
+       Token read();
+     private:
+       std::queue<Token> queue;
+   };
+ 
++  TokenStream& operator<<(TokenStream& stream, const Token& token);
++
+   class Parser {
+     public:
+       Parser(TokenStream stream);
+diff --git a/lib/parser.cc b/lib/parser.cc
+index 8c6aece..2438a5c 100644
+--- a/lib/parser.cc
++++ b/lib/parser.cc
+@@ -2,10 +2,15 @@
+ 
+ using namespace Schemese;
+ 
+-void TokenStream::push(Token token) {
++void TokenStream::push(const Token& token) {
+   queue.push(token);
+ }
+ 
++TokenStream& operator<<(TokenStream& stream, const Token& token) {
++  stream.push(token);
++  return stream;
++}
++
+ Token TokenStream::read() {
+   Token front = queue.front();
+   queue.pop();
+diff --git a/test/parser_test.cc b/test/parser_test.cc
+index f400286..a1172b2 100644
+--- a/test/parser_test.cc
++++ b/test/parser_test.cc
+@@ -23,9 +23,9 @@ class ParserTest : public ::testing::Test {
+ 
+ TEST_F(ParserTest, parse_empty_list) {
+   TokenStream token_stream;
+-  token_stream.push(Token(LPAREN, "("));
+-  token_stream.push(Token(INTEGER, "42"));
+-  token_stream.push(Token(RPAREN, ")"));
++  token_stream << Token(LPAREN, "(");
++  token_stream << Token(INTEGER, "42");
++  token_stream << Token(RPAREN, ")");
+   SExpression* tree = parse(token_stream);
+   Scalar* car = (Scalar*)tree->car;
+   SExpression* cdr = (SExpression*)tree->cdr;

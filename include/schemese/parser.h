@@ -33,11 +33,13 @@ namespace Schemese {
 
   class TokenStream {
     public:
-      void push(Token token);
+      void push(const Token& token);
       Token read();
     private:
       std::queue<Token> queue;
   };
+
+  TokenStream& operator<<(TokenStream& stream, const Token& token);
 
   class Parser {
     public:

@@ -1,9 +1,14 @@
 #include <schemese/parser.h>
 
-using namespace Schemese;
+namespace Schemese {
 
-void TokenStream::push(Token token) {
+void TokenStream::push(const Token& token) {
   queue.push(token);
+}
+
+TokenStream& operator<<(TokenStream& stream, const Token& token) {
+  stream.push(token);
+  return stream;
 }
 
 Token TokenStream::read() {
@@ -21,3 +26,5 @@ SExpression* Parser::parse() {
       new Integer(Token(INTEGER, "42")),
       new SExpression());
 }
+
+} // namespace
