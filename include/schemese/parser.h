@@ -10,31 +10,37 @@ namespace Schemese {
       virtual ~Expression() { }
   };
 
-  class Scalar : public Expression {
+  class ScalarExpr : public Expression {
     public:
-      Scalar(Token t) : token(t) { }
-      const Token token;
+      ScalarExpr(Token token) : _token(token) { }
+      const Token& token();
+    private:
+      const Token _token;
   };
 
-  class SExpression : public Expression {
+  typedef std::vector<Expression*> ListContents;
+  class ListExpr : public Expression {
     public:
-      SExpression(Expression* e1, Expression* e2) : car(e1), cdr(e2) { }
-      SExpression() : car(NULL), cdr(NULL) { }
-      bool empty() { return car == NULL; }
+      ListExpr(ListContents& contents) : _contents(contents) {  }
+      ListExpr() : _contents(ListContents()) { }
 
-      const Expression* car;
-      const Expression* cdr;
+      ListContents& contents();
+
+    private:
+      ListContents _contents;
   };
 
-  class Integer : public Scalar {
+  class Integer : public ScalarExpr {
     public:
-      Integer(Token integer_token) : Scalar(integer_token) { }
+      Integer(Token integer_token) : ScalarExpr(integer_token) { }
   };
 
   class TokenStream {
     public:
       void push(const Token& token);
-      Token read();
+      Token& read();
+      const Token& peek() const;
+      void consume();
     private:
       std::queue<Token> queue;
   };
@@ -44,10 +50,13 @@ namespace Schemese {
   class Parser {
     public:
       Parser(TokenStream stream);
-      SExpression* parse();
+      Expression* parse();
+
     private:
-      TokenStream token_stream;
-      SExpression* tree = NULL;
+      ListExpr* parse_list();
+      ListContents parse_list_contents();
+
+      TokenStream _stream;
   };
 }
 

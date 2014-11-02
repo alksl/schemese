@@ -7,7 +7,7 @@ using namespace Schemese;
 
 class ParserTest : public ::testing::Test {
   protected:
-    SExpression* parse(TokenStream stream) {
+    Expression* parse(TokenStream stream) {
       Parser parser(stream);
       return parser.parse();
     }
@@ -22,15 +22,33 @@ class ParserTest : public ::testing::Test {
 };
 
 TEST_F(ParserTest, parse_empty_list) {
+  TokenStream stream;
+  stream << Token(LPAREN, "(");
+  stream << Token(RPAREN, ")");
+  ListExpr* tree = (ListExpr*)parse(stream);
+  EXPECT_EQ(true, tree->contents().empty());
+}
+
+TEST_F(ParserTest, parse_integer) {
+  TokenStream stream;
+  stream << Token(INTEGER, "42");
+
+  Integer* integer = (Integer*)parse(stream);
+  assert_token(integer->token(), INTEGER, "42");
+}
+
+
+TEST_F(ParserTest, parse_list_with_number) {
   TokenStream token_stream;
   token_stream << Token(LPAREN, "(");
   token_stream << Token(INTEGER, "42");
   token_stream << Token(RPAREN, ")");
-  SExpression* tree = parse(token_stream);
-  Scalar* car = (Scalar*)tree->car;
-  SExpression* cdr = (SExpression*)tree->cdr;
-  assert_token(car->token, INTEGER, "42");
-  EXPECT_EQ(true, cdr->empty());
+
+  ListExpr* list = (ListExpr*)parse(token_stream);
+  EXPECT_EQ(1, list->contents().size());
+
+  Integer* integer = (Integer*)list->contents().at(0);
+  assert_token(integer->token(), INTEGER, "42");
 }
 
 }
