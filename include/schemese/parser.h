@@ -5,8 +5,12 @@
 
 
 namespace Schemese {
+  // Forward declaration
+  class IAstVisitor;
+
   class Expression {
     public:
+      virtual void visit(IAstVisitor& visitor) = 0;
       virtual ~Expression() { }
   };
 
@@ -23,9 +27,7 @@ namespace Schemese {
     public:
       ListExpr(ListContents& contents) : _contents(contents) {  }
       ListExpr() : _contents(ListContents()) { }
-
-      ListContents& contents();
-
+      virtual void visit(IAstVisitor& visitor);
     private:
       ListContents _contents;
   };
@@ -33,6 +35,7 @@ namespace Schemese {
   class Integer : public ScalarExpr {
     public:
       Integer(Token integer_token) : ScalarExpr(integer_token) { }
+      virtual void visit(IAstVisitor& visitor);
   };
 
   class TokenStream {
@@ -46,6 +49,14 @@ namespace Schemese {
   };
 
   TokenStream& operator<<(TokenStream& stream, const Token& token);
+
+  class IAstVisitor {
+    public:
+      virtual void list_begin() = 0;
+      virtual void list_end() = 0;
+      virtual void visit_integer(Integer& integer) = 0;
+      virtual ~IAstVisitor() { }
+  };
 
   class Parser {
     public:

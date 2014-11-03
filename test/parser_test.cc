@@ -1,54 +1,74 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <schemese/parser.h>
 
 namespace {
 
 using namespace Schemese;
+using namespace testing;
 
-class ParserTest : public ::testing::Test {
+class ParserTest : public Test {
   protected:
     Expression* parse(TokenStream stream) {
       Parser parser(stream);
       return parser.parse();
     }
+};
 
-    void assert_token(
-        Token token,
-        TokenType expected_type,
-        std::string expected_string) {
-      EXPECT_EQ(expected_type, token.type());
-      EXPECT_EQ(expected_string, token.value());
-    }
+class MockVisitor : public IAstVisitor {
+  public:
+    MOCK_METHOD0(list_begin, void());
+    MOCK_METHOD0(list_end, void());
+    MOCK_METHOD1(visit_integer, void(Integer& integer));
 };
 
 TEST_F(ParserTest, parse_empty_list) {
+  Sequence s1;
   TokenStream stream;
+  MockVisitor visitor;
+
   stream << Token(LPAREN, "(");
   stream << Token(RPAREN, ")");
-  ListExpr* tree = (ListExpr*)parse(stream);
-  EXPECT_EQ(true, tree->contents().empty());
+
+  EXPECT_CALL(visitor, list_begin())
+    .InSequence(s1);
+  EXPECT_CALL(visitor, list_end())
+    .InSequence(s1);
+
+  Expression* tree = parse(stream);
+  tree->visit(visitor);
 }
 
 TEST_F(ParserTest, parse_integer) {
   TokenStream stream;
+  MockVisitor visitor;
+
   stream << Token(INTEGER, "42");
 
-  Integer* integer = (Integer*)parse(stream);
-  assert_token(integer->token(), INTEGER, "42");
+  EXPECT_CALL(visitor, visit_integer(_));
+
+  Expression* tree = parse(stream);
+  tree->visit(visitor);
 }
 
-
 TEST_F(ParserTest, parse_list_with_number) {
+  Sequence s1;
   TokenStream token_stream;
+  MockVisitor visitor;
+
   token_stream << Token(LPAREN, "(");
   token_stream << Token(INTEGER, "42");
   token_stream << Token(RPAREN, ")");
 
-  ListExpr* list = (ListExpr*)parse(token_stream);
-  EXPECT_EQ(1, list->contents().size());
+  EXPECT_CALL(visitor, list_begin())
+    .InSequence(s1);
+  EXPECT_CALL(visitor, visit_integer(_))
+    .InSequence(s1);
+  EXPECT_CALL(visitor, list_end())
+    .InSequence(s1);
 
-  Integer* integer = (Integer*)list->contents().at(0);
-  assert_token(integer->token(), INTEGER, "42");
+  Expression* tree = parse(token_stream);
+  tree->visit(visitor);
 }
 
-}
+} // anonymous namespace

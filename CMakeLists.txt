@@ -4,10 +4,11 @@ project(schemese)
 find_package(FLEX)
 
 set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11 -stdlib=libc++")
-add_subdirectory(vendor/googletest)
+add_subdirectory(vendor/googlemock)
 enable_testing()
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+include_directories(${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 flex_target(scanner_definitions
@@ -35,5 +36,5 @@ add_executable(parser_test
   lib/parser.cc
   test/parser_test.cc)
 
-target_link_libraries(parser_test ${CORELIBS} gtest gtest_main)
+target_link_libraries(parser_test ${CORELIBS} gmock gtest gtest_main)
 add_test(parser_test ${CMAKE_BINARY_DIR}/scanner_test)

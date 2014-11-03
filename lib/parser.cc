@@ -36,8 +36,16 @@ const Token& ScalarExpr::token() {
   return _token;
 }
 
-ListContents& ListExpr::contents() {
-  return _contents;
+void ListExpr::visit(IAstVisitor& visitor) {
+  visitor.list_begin();
+  for(ListContents::iterator it = _contents.begin() ; it != _contents.end(); ++it) {
+    (*it)->visit(visitor);
+  }
+  visitor.list_end();
+}
+
+void Integer::visit(IAstVisitor& visitor) {
+  visitor.visit_integer(*this);
 }
 
 /*
