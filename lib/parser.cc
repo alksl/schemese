@@ -45,25 +45,36 @@ void ListExpr::visit(IAstVisitor& visitor) {
 }
 
 void Integer::visit(IAstVisitor& visitor) {
-  visitor.visit_integer(*this);
+  visitor.integer(*this);
+}
+
+void Symbol::visit(IAstVisitor& visitor) {
+  visitor.symbol(*this);
 }
 
 /*
  * Parser
  */
+const char* ParserException::what() const throw() {
+ return _message.c_str();
+}
+
 Parser::Parser(TokenStream stream) {
   _stream = stream;
 }
 
 Expression* Parser::parse() {
   Token token = _stream.read();
-  if(token.type() == LPAREN) {
-    return parse_list();
-  } else if(token.type() == INTEGER) {
-    return new Integer(token);
+  switch(token.type()) {
+    case LPAREN:
+      return parse_list();
+    case INTEGER:
+      return new Integer(token);
+    case IDENTIFIER:
+      return new Symbol(token);
+    default:
+      throw ParserException("Parser::parse, Unrecognized token");
   }
-
-  return NULL;
 }
 
 ListExpr* Parser::parse_list() {

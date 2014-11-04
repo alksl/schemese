@@ -34,7 +34,13 @@ namespace Schemese {
 
   class Integer : public ScalarExpr {
     public:
-      Integer(Token integer_token) : ScalarExpr(integer_token) { }
+      Integer(Token& token) : ScalarExpr(token) { }
+      virtual void visit(IAstVisitor& visitor);
+  };
+
+  class Symbol : public ScalarExpr {
+    public:
+      Symbol(Token& token) : ScalarExpr(token) { }
       virtual void visit(IAstVisitor& visitor);
   };
 
@@ -54,8 +60,17 @@ namespace Schemese {
     public:
       virtual void list_begin() = 0;
       virtual void list_end() = 0;
-      virtual void visit_integer(Integer& integer) = 0;
+      virtual void integer(Integer& integer) = 0;
+      virtual void symbol(Symbol& symbol) = 0;
       virtual ~IAstVisitor() { }
+  };
+
+  class ParserException : public std::exception {
+    public:
+      ParserException(const char* message) : _message(message) { }
+      virtual const char* what() const throw();
+    private:
+      std::string _message;
   };
 
   class Parser {
