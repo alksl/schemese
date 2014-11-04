@@ -44,6 +44,14 @@ void ListExpr::visit(IAstVisitor& visitor) {
   visitor.list_end();
 }
 
+void VectorExpr::visit(IAstVisitor& visitor) {
+  visitor.vector_begin();
+  for(VectorContents::iterator it = _contents.begin() ; it != _contents.end(); ++it) {
+    (*it)->visit(visitor);
+  }
+  visitor.vector_end();
+}
+
 void Integer::visit(IAstVisitor& visitor) {
   visitor.integer(*this);
 }
@@ -68,6 +76,8 @@ Expression* Parser::parse() {
   switch(token.type()) {
     case LPAREN:
       return parse_list();
+    case LBRACKET:
+      return parse_vector();
     case INTEGER:
       return new Integer(token);
     case IDENTIFIER:
@@ -85,6 +95,30 @@ ListExpr* Parser::parse_list() {
   } else {
     ListContents contents = parse_list_contents();
     return new ListExpr(contents);
+  }
+}
+
+VectorExpr* Parser::parse_vector() {
+  const Token peek = _stream.peek();
+  if(peek.type() == RBRACKET) {
+    _stream.consume();
+    return new VectorExpr();
+  } else {
+    VectorContents contents = parse_vector_contents();
+    return new VectorExpr(contents);
+  }
+}
+
+VectorContents Parser::parse_vector_contents() {
+  VectorContents contents;
+  while(true) {
+    const Token peek = _stream.peek();
+    if(peek.type() == RBRACKET) {
+      _stream.consume();
+      return contents;
+    }
+
+    contents.push_back(parse());
   }
 }
 

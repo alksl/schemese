@@ -11,6 +11,8 @@ class MockVisitor : public IAstVisitor {
   public:
     MOCK_METHOD0(list_begin, void());
     MOCK_METHOD0(list_end, void());
+    MOCK_METHOD0(vector_begin, void());
+    MOCK_METHOD0(vector_end, void());
     MOCK_METHOD1(integer, void(Integer& integer));
     MOCK_METHOD1(symbol, void(Symbol& symbol));
 };
@@ -36,6 +38,18 @@ TEST_F(ParserTest, parse_empty_list) {
   EXPECT_CALL(visitor, list_begin())
     .InSequence(s1);
   EXPECT_CALL(visitor, list_end())
+    .InSequence(s1);
+
+  parse();
+}
+
+TEST_F(ParserTest, parse_empty_vector) {
+  stream << Token(LBRACKET, "[");
+  stream << Token(RBRACKET, "]");
+
+  EXPECT_CALL(visitor, vector_begin())
+    .InSequence(s1);
+  EXPECT_CALL(visitor, vector_end())
     .InSequence(s1);
 
   parse();
@@ -67,6 +81,21 @@ TEST_F(ParserTest, parse_list_with_number) {
   EXPECT_CALL(visitor, integer(_))
     .InSequence(s1);
   EXPECT_CALL(visitor, list_end())
+    .InSequence(s1);
+
+  parse();
+}
+
+TEST_F(ParserTest, parse_vector_with_number) {
+  stream << Token(LBRACKET, "[");
+  stream << Token(INTEGER, "42");
+  stream << Token(RBRACKET, "]");
+
+  EXPECT_CALL(visitor, vector_begin())
+    .InSequence(s1);
+  EXPECT_CALL(visitor, integer(_))
+    .InSequence(s1);
+  EXPECT_CALL(visitor, vector_end())
     .InSequence(s1);
 
   parse();

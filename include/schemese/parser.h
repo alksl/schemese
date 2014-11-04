@@ -32,6 +32,16 @@ namespace Schemese {
       ListContents _contents;
   };
 
+  typedef std::vector<Expression*> VectorContents;
+  class VectorExpr : public Expression {
+    public:
+      VectorExpr(VectorContents& contents) : _contents(contents) { }
+      VectorExpr() : _contents(VectorContents()) { }
+      virtual void visit(IAstVisitor& visitor);
+    private:
+      VectorContents _contents;
+  };
+
   class Integer : public ScalarExpr {
     public:
       Integer(Token& token) : ScalarExpr(token) { }
@@ -60,6 +70,8 @@ namespace Schemese {
     public:
       virtual void list_begin() = 0;
       virtual void list_end() = 0;
+      virtual void vector_begin() = 0;
+      virtual void vector_end() = 0;
       virtual void integer(Integer& integer) = 0;
       virtual void symbol(Symbol& symbol) = 0;
       virtual ~IAstVisitor() { }
@@ -80,7 +92,9 @@ namespace Schemese {
 
     private:
       ListExpr* parse_list();
+      VectorExpr* parse_vector();
       ListContents parse_list_contents();
+      VectorContents parse_vector_contents();
 
       TokenStream _stream;
   };
